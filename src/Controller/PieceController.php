@@ -68,4 +68,49 @@ class PieceController extends AbstractController
             'piece' => $piece,
         ]);
     }
+
+    #[Route('/{id}/modifier', name: 'app_piece_modifier', methods: ['GET', 'POST'])]
+    public function modifier(Request $request, Piece $piece, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
+    {
+        $form = $this->createForm(PieceType::class, $piece);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('pieces_directory'),
+                        $newFilename
+                    );
+                    $piece->setImage($newFilename);
+                } catch (FileException $e) {
+                    // Handle exception
+                }
+            }
+
+            $entityManager->flush();
+            return $this->redirectToRoute('app_piece_index');
+        }
+
+        return $this->render('piece/edit.html.twig', [
+            'piece' => $piece,
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/{id}/supprimer', name: 'app_piece_supprimer', methods: ['POST'])]
+    public function supprimer(Request $request, Piece $piece, EntityManagerInterface $entityManager): Response
+    {
+        if ($this->isCsrfTokenValid('delete'.$piece->getId(), $request->request->get('_token'))) {
+            $entityManager->remove($piece);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('app_piece_index');
+    }
 } 

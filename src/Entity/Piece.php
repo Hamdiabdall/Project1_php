@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\PieceRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PieceRepository::class)]
@@ -20,7 +19,7 @@ class Piece
     #[ORM\Column]
     private ?int $quantite = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[ORM\Column(length: 50)]
     private ?string $unite = null;
 
     #[ORM\Column(length: 255)]

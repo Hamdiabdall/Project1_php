@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Pièces{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Liste des Pièces</h1>
+
+        <a href="{{ path('app_piece_ajouter') }}" class="btn btn-primary mb-3">Ajouter une nouvelle pièce</a>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Quantité</th>
+                    <th>Unité</th>
+                    <th>Fournisseur</th>
+                    <th>Montage</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for piece in pieces %}
+                <tr>
+                    <td>{{ piece.id }}</td>
+                    <td>{{ piece.nomPiece }}</td>
+                    <td>{{ piece.quantite }}</td>
+                    <td>{{ piece.unite }}</td>
+                    <td>{{ piece.fournisseur }}</td>
+                    <td>{{ piece.montage.nomMontage }}</td>
+                    <td>
+                        {% if piece.image %}
+                            <img src="{{ asset('uploads/pieces/' ~ piece.image) }}" alt="Image" style="max-width: 50px">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_piece_show', {'id': piece.id}) }}" class="btn btn-info btn-sm">Voir</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8">Aucune pièce trouvée</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %} 

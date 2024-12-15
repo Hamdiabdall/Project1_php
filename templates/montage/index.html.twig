@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Liste des Montages{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Liste des Montages</h1>
+
+        <a href="{{ path('app_montage_addM') }}" class="btn btn-primary mb-3">Ajouter un nouveau montage</a>
+
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nom</th>
+                    <th>Client</th>
+                    <th>Date de création</th>
+                    <th>Coût</th>
+                    <th>Image</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for montage in montages %}
+                <tr>
+                    <td>{{ montage.id }}</td>
+                    <td>{{ montage.nomMontage }}</td>
+                    <td>{{ montage.client }}</td>
+                    <td>{{ montage.createdAt|date('Y-m-d H:i:s') }}</td>
+                    <td>{{ montage.cout }}</td>
+                    <td>
+                        {% if montage.image %}
+                            <img src="{{ asset('uploads/montages/' ~ montage.image) }}" alt="Image" style="max-width: 50px">
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ path('app_montage_editAll', {'id': montage.id}) }}" class="btn btn-warning btn-sm">Modifier</a>
+                        <form method="post" action="{{ path('app_montage_delete', {'id': montage.id}) }}" style="display: inline-block"
+                              onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer ce montage ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ montage.id) }}">
+                            <button class="btn btn-danger btn-sm">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7">Aucun montage trouvé</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %} 

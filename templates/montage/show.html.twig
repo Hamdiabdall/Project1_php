@@ -1,0 +1,71 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails du Montage{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Détails du montage</h1>
+
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ montage.id }}</td>
+                </tr>
+                <tr>
+                    <th>Nom</th>
+                    <td>{{ montage.nomMontage }}</td>
+                </tr>
+                <tr>
+                    <th>Client</th>
+                    <td>{{ montage.client }}</td>
+                </tr>
+                <tr>
+                    <th>Date de création</th>
+                    <td>{{ montage.createdAt|date('Y-m-d H:i:s') }}</td>
+                </tr>
+                <tr>
+                    <th>Coût</th>
+                    <td>{{ montage.cout }}</td>
+                </tr>
+                <tr>
+                    <th>Image</th>
+                    <td>
+                        {% if montage.image %}
+                            <img src="{{ asset('uploads/montages/' ~ montage.image) }}" alt="Image" style="max-width: 200px">
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 class="mt-4">Pièces associées</h2>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Quantité</th>
+                    <th>Unité</th>
+                    <th>Fournisseur</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for piece in montage.pieces %}
+                <tr>
+                    <td>{{ piece.nomPiece }}</td>
+                    <td>{{ piece.quantite }}</td>
+                    <td>{{ piece.unite }}</td>
+                    <td>{{ piece.fournisseur }}</td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="4">Aucune pièce associée</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ path('app_montage_index') }}" class="btn btn-secondary">Retour à la liste</a>
+        <a href="{{ path('app_montage_edit', {'id': montage.id}) }}" class="btn btn-warning">Modifier</a>
+    </div>
+{% endblock %} 

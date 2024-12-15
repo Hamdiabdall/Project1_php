@@ -1,0 +1,48 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Détails de la Pièce{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h1>Détails de la pièce</h1>
+
+        <table class="table">
+            <tbody>
+                <tr>
+                    <th>Id</th>
+                    <td>{{ piece.id }}</td>
+                </tr>
+                <tr>
+                    <th>Nom</th>
+                    <td>{{ piece.nomPiece }}</td>
+                </tr>
+                <tr>
+                    <th>Quantité</th>
+                    <td>{{ piece.quantite }}</td>
+                </tr>
+                <tr>
+                    <th>Unité</th>
+                    <td>{{ piece.unite }}</td>
+                </tr>
+                <tr>
+                    <th>Fournisseur</th>
+                    <td>{{ piece.fournisseur }}</td>
+                </tr>
+                <tr>
+                    <th>Montage</th>
+                    <td>{{ piece.montage.nomMontage }}</td>
+                </tr>
+                <tr>
+                    <th>Image</th>
+                    <td>
+                        {% if piece.image %}
+                            <img src="{{ asset('uploads/pieces/' ~ piece.image) }}" alt="Image" style="max-width: 200px">
+                        {% endif %}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a href="{{ path('app_piece_index') }}" class="btn btn-secondary">Retour à la liste</a>
+    </div>
+{% endblock %} 

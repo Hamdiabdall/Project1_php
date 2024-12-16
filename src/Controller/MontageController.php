@@ -61,13 +61,40 @@ class MontageController extends AbstractController
     }
 
     #[Route('/{id}/editAll', name: 'app_montage_editAll', methods: ['GET', 'POST'])]
-    public function editAll(Request $request, Montage $montage, EntityManagerInterface $entityManager): Response
+    public function editAll(Request $request, Montage $montage, EntityManagerInterface $entityManager, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(MontageType::class, $montage);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            $imageFile = $form->get('image')->getData();
+            if ($imageFile) {
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $newFilename = $safeFilename.'-'.uniqid().'.'.$imageFile->guessExtension();
+
+                try {
+                    $imageFile->move(
+                        $this->getParameter('montages_directory'),
+                        $newFilename
+                    );
+                    
+                    // Supprimer l'ancienne image si elle existe
+                    if ($montage->getImage()) {
+                        $oldFile = $this->getParameter('montages_directory').'/'.$montage->getImage();
+                        if (file_exists($oldFile)) {
+                            unlink($oldFile);
+                        }
+                    }
+                    
+                    $montage->setImage($newFilename);
+                } catch (FileException $e) {
+                    // Gérer l'erreur si nécessaire
+                }
+            }
+
             $entityManager->flush();
+            $this->addFlash('success', 'Le montage a été modifié avec succès.');
             return $this->redirectToRoute('app_montage_index');
         }
 
@@ -81,8 +108,17 @@ class MontageController extends AbstractController
     public function delete(Request $request, Montage $montage, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$montage->getId(), $request->request->get('_token'))) {
+            // Supprimer l'image si elle existe
+            if ($montage->getImage()) {
+                $imagePath = $this->getParameter('montages_directory').'/'.$montage->getImage();
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            
             $entityManager->remove($montage);
             $entityManager->flush();
+            $this->addFlash('success', 'Le montage a été supprimé avec succès.');
         }
 
         return $this->redirectToRoute('app_montage_index');

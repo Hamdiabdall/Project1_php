@@ -87,13 +87,23 @@ class PieceController extends AbstractController
                         $this->getParameter('pieces_directory'),
                         $newFilename
                     );
+                    
+                    // Supprimer l'ancienne image si elle existe
+                    if ($piece->getImage()) {
+                        $oldFile = $this->getParameter('pieces_directory').'/'.$piece->getImage();
+                        if (file_exists($oldFile)) {
+                            unlink($oldFile);
+                        }
+                    }
+                    
                     $piece->setImage($newFilename);
                 } catch (FileException $e) {
-                    // Handle exception
+                    // Gérer l'erreur si nécessaire
                 }
             }
 
             $entityManager->flush();
+            $this->addFlash('success', 'La pièce a été modifiée avec succès.');
             return $this->redirectToRoute('app_piece_index');
         }
 
@@ -107,8 +117,17 @@ class PieceController extends AbstractController
     public function supprimer(Request $request, Piece $piece, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$piece->getId(), $request->request->get('_token'))) {
+            // Supprimer l'image si elle existe
+            if ($piece->getImage()) {
+                $imagePath = $this->getParameter('pieces_directory').'/'.$piece->getImage();
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
+            }
+            
             $entityManager->remove($piece);
             $entityManager->flush();
+            $this->addFlash('success', 'La pièce a été supprimée avec succès.');
         }
 
         return $this->redirectToRoute('app_piece_index');
